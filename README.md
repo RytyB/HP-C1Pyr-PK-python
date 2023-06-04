@@ -1,5 +1,7 @@
-CAn be installed with 
+<ul>
+Can be installed with 
 pip install pkhpc1pyr
+</ul>
 
 <ul>
 Python code for pharmacokinetic modeling of hyperpolarized [1-13C]-pyruvate.
