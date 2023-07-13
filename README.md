@@ -1,10 +1,12 @@
-<ul>
-Can be installed with 
-pip install pkhpc1pyr
-</ul>
+<h1> HP C1-Pyruvate Pharmacokinetic Modeling Package for Python </h1>
+
+<h2>
+Purpose
+</h2>
 
 <ul>
-Python code for pharmacokinetic modeling of hyperpolarized [1-13C]-pyruvate.
+This package was meant to create a more user friendly, open source version of the MATLAB developed by the MD Anderson Magnetic Resonance Engineering Laboratory.
+The original repository is available at https://github.com/mda-mrsl/HP-C1Pyr-PK
 </ul>
 
 <ul>
@@ -28,9 +30,34 @@ The scripts titled P2L1*.py represent a simple precursor-product model, which do
 </ul>
 
 <ul>
-Each of these groups of scripts are also accompanied by a test script inside the tests folder (TestP2L#.py) that shows how to work with these models - from setup and generation of synthetic data to PK analysis by fitting.
+Each script is accompanied by utilities and a test function which runs a model and plots the results for given parameters. 
+</ul>
+
+<h2> 
+Installation
+</h2>
+
+<ul> Running requires python version 3.10 or compatible </ul>
+
+<ul>
+Can be installed from Pypi repository with pip
+<br> <i> pip install pkhpc1pyr </i>
+<br> The required dependencies can be found in the file requirements.txt and installed with the command 
+<br> <i> pip install numpy==1.24.3 </i>
 </ul>
 
 <ul>
-Please do not hesitate to contact with any questions, comments, concerns, or suggestions for improvement: Ryan Boyce ryty.boyce@gmail.com
+The installation can be tested by calling the TestP2L* functions without any arguments. For example:
+<br> <i> import pkhpc1pyr as pk 
+<br> pk.tests.TestP2L3() </i>
 </ul>
+
+<h2> 
+Contact
+</h2>
+
+<ul>
+For questions about code or maintenance please contact Ryan Boyce <br> rboyce@mdanderson.org
+<br> For further questions about the original MATLAB repository please contact Dr. Jim Bankson <br> jbankson@mdanderson.org
+</ul>
+

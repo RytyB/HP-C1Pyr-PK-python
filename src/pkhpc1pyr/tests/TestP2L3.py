@@ -93,7 +93,7 @@ def TestP2L3(parms=None, keys=None, values=None, knowns=None, knownVals=None):
         parms = np.array( [0.1, 1000] )
     else:
         parms = np.array(parms)
-    EV, IV, vols, Mzev, Mziv = P2L3.P2L3(parms, fdv)
+    EV, IV, vols, Mzev, Mziv = P2L3(parms, fdv)
     fdv['data'] = IV[0:2]*vols[0] + EV[0:2]*vols[1] + EV[2:4]*vols[2]
 
     ### Create a fit for the generated data and try to recover parameters above ###
@@ -112,7 +112,7 @@ def TestP2L3(parms=None, keys=None, values=None, knowns=None, knownVals=None):
     resid = fit['fun']
 
     ### Plot the fits ###
-    fig = P2L3Plot.plot(resid, popt, fdv)
+    fig = P2L3Plot.P2L3Plot(resid, popt, fdv)
 
     return fig
 

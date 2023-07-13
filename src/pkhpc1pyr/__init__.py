@@ -1,8 +1,8 @@
 from . import utils
 
-from . import P2L1
-from . import P2L2
-from . import P2L3
+from . P2L1 import P2L1
+from . P2L2 import P2L2
+from . P2L3 import P2L3
 
 from . import tests
 

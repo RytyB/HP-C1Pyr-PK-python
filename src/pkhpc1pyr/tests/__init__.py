@@ -4,9 +4,9 @@ from .. import P2L3
 
 from .. import utils
 
-from . import TestP2L1
-from . import TestP2L2
-from . import TestP2L3
+from . TestP2L1 import TestP2L1
+from . TestP2L2 import TestP2L2
+from . TestP2L3 import TestP2L3
 
 
 __all__ = [

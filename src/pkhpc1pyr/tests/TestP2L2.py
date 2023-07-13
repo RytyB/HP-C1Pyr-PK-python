@@ -88,7 +88,7 @@ def TestP2L2(parms=None, keys=None, values=None, knowns=None, knownVals=None):
         parms = np.array( [0.1, 1000] )
     else:
         parms = np.array( parms )
-    EV, IV, vb, Mzev, Mziv = P2L2.P2L2(parms, fdv) 
+    EV, IV, vb, Mzev, Mziv = P2L2(parms, fdv) 
     fdv['data'] = IV*vb + EV*(1-vb)
 
     ### Create a fit for the generated data and try to recover parameters above ###
@@ -107,7 +107,7 @@ def TestP2L2(parms=None, keys=None, values=None, knowns=None, knownVals=None):
     resid = fit['fun']
 
     ### Plot the fits ###
-    fig = P2L2Plot.plot(resid, popt, fdv)
+    fig = P2L2Plot.P2L2Plot(resid, popt, fdv)
 
     return fig
 

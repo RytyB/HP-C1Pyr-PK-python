@@ -77,7 +77,7 @@ def TestP2L1(parms=None, keys=None, values=None, knowns=None, knownVals=None):
         parms = [.05] # This is Kpl only
     else:
         np.array(parms)
-    Mxy, Mz = P2L1.P2L1(parms, fdv)
+    Mxy, Mz = P2L1(parms, fdv)
     fdv['data'] = Mxy 
 
     ### Create a fit for the generated data ###
@@ -96,7 +96,7 @@ def TestP2L1(parms=None, keys=None, values=None, knowns=None, knownVals=None):
     resid = fit['fun']
 
     ### Plot the fits ###
-    fig = P2L1Plot.plot(resid, popt, fdv)
+    fig = P2L1Plot.P2L1Plot(resid, popt, fdv)
 
     return fig
 

@@ -3,7 +3,7 @@ import numpy as np
 from .. import P2L3
 
 
-def plot(resid, parms, fdv):
+def P2L3Plot(resid, parms, fdv):
     '''
     A function to plot the result of TestP2L1.py
 

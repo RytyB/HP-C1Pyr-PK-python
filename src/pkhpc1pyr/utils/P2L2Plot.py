@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from .. import P2L2
 
-def plot(resid, parms, fdv):
+def P2L2Plot(resid, parms, fdv):
     '''
     A function to plot the result of TestP2L1.py
 
