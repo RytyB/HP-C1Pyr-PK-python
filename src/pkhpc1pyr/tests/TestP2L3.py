@@ -90,7 +90,7 @@ def TestP2L3(parms=None, keys=None, values=None, knowns=None, knownVals=None):
 
     # Generate synthetic data
     if parms == None:
-        parms = np.array( [0.1, 1000] )
+        parms = np.array( [0.5, 1000] )
     else:
         parms = np.array(parms)
     EV, IV, vols, Mzev, Mziv = P2L3(parms, fdv)
@@ -99,7 +99,10 @@ def TestP2L3(parms=None, keys=None, values=None, knowns=None, knownVals=None):
     ### Create a fit for the generated data and try to recover parameters above ###
     LB = [0,0]
     UB = [1, np.Inf]
-    guess = (parms*10) * np.random.rand(2)
+    
+    guess=parms
+    guess[0] = (UB[0] / guess[0]) * np.random.rand(1) * guess[0]
+    guess[1] = guess[1] * np.random.rand(1) * 2
 
     # Optimize parameters by solving least squares problem for residuals
     fit = opt.least_squares(

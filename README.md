@@ -43,7 +43,7 @@ Installation
 Can be installed from Pypi repository with pip
 <br> <i> pip install pkhpc1pyr </i>
 <br> The required dependencies can be found in the file requirements.txt and installed with the command 
-<br> <i> pip install numpy==1.24.3 </i>
+<br> <i> pip install -r requirements.txt </i>
 </ul>
 
 <ul>

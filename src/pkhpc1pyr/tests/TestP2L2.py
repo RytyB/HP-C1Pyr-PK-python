@@ -94,7 +94,10 @@ def TestP2L2(parms=None, keys=None, values=None, knowns=None, knownVals=None):
     ### Create a fit for the generated data and try to recover parameters above ###
     LB = [0, 0]
     UB = [1, np.Inf]
-    guess = (parms*10) * np.random.rand(2)
+
+    guess = parms
+    guess[0] = (UB[0]/guess[0]) * np.random.rand(1) * guess[0]
+    guess[1] = 2 * np.random.rand(1) * guess[1]
 
     # Optimize parameters by solving least squares problem for residuals
     fit = opt.least_squares(

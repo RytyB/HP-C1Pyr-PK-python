@@ -171,8 +171,8 @@ def P2L3(vars, fdv):
             # In version 0.0.1, fdv['NSeg']>1 is not supported
             print('Segmented acquisition not set up yet')
         else:
-            Mxyev[:,i-1] = np.reshape( MxyevSeg, (4,) )
-            Mzev[:, i-1] = np.reshape( MzevSeg, (4,) )
+            Mxyev[:,i] = np.reshape( MxyevSeg, (4,) )
+            Mzev[:, i] = np.reshape( MzevSeg, (4,) )
 
             Mxyiv[:, i] = MxyivSeg[:, i]
             Mziv[:, i] = MzivSeg[:, i]
