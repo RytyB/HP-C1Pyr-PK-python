@@ -1,13 +1,5 @@
-from . import utils
+from . parameters import *
+from . simulators import *
+from . fitters import *
 
-from . P2L1 import P2L1
-from . P2L2 import P2L2
-from . P2L3 import P2L3
-
-from . import tests
-
-__all__ = [
-    'P2L1',
-    'P2L2',
-    'P2L3'
-]
+__all__ = fitters.__all__ + simulators.__all__ + parameters.__all__

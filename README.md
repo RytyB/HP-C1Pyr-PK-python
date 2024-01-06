@@ -5,7 +5,7 @@ Purpose
 </h2>
 
 <ul>
-This package was meant to create a more user friendly, open source version of the MATLAB developed by the MD Anderson Magnetic Resonance Engineering Laboratory.
+This package was meant to create a more user friendly, open source version of the MATLAB code developed by the MD Anderson Magnetic Resonance Engineering Laboratory.
 The original repository is available at https://github.com/mda-mrsl/HP-C1Pyr-PK
 </ul>
 
@@ -14,7 +14,7 @@ These scripts calculate the relationship between [1-13C]-pyruvate and [1-13C]-la
 </ul>
 
 <ul>
-There are three base models, of differing complexity, which include a different number of physical compartments:
+There are three base models or simulators of differing complexity which include a different number of physical compartments:
 </ul>
 
 <ul>
@@ -30,8 +30,9 @@ The scripts titled P2L1*.py represent a simple precursor-product model, which do
 </ul>
 
 <ul>
-Each script is accompanied by utilities and a test function which runs a model and plots the results for given parameters. 
+There are also Fit and Sim_Data objects, which can be used to generate fitted signal curves to a data set and simulate an experimental dataset respectively.
 </ul>
+
 
 <h2> 
 Installation
@@ -40,7 +41,7 @@ Installation
 <ul> Running requires python version 3.10 or compatible </ul>
 
 <ul>
-Can be installed from Pypi repository with pip
+Previous version of code can be installed from Pypi repository with pip
 <br> <i> pip install pkhpc1pyr </i>
 <br> The required dependencies can be found in the file requirements.txt and installed with the command 
 <br> <i> pip install -r requirements.txt </i>
@@ -50,6 +51,11 @@ Can be installed from Pypi repository with pip
 The installation can be tested by calling the TestP2L* functions without any arguments. For example:
 <br> <i> import pkhpc1pyr as pk 
 <br> pk.tests.TestP2L3() </i>
+</ul>
+
+<ul>
+Current version of the package will be updated and added to Pypi repository after further testing or
+upon request.
 </ul>
 
 <h2> 
