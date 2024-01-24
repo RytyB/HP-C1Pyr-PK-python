@@ -1,4 +1,3 @@
-from numpy import zeros
 from numpy import cumsum
 from numpy import ones
 
@@ -24,7 +23,7 @@ class fit_params:
 class acq_params:
     def __init__(self, **kwargs):
         self.ntp = kwargs.get('ntp', 100)
-        self.FA = kwargs.get('FA', zeros( (self.ntp,) ))
+        self.FA = kwargs.get('FA', 20*ones( (self.ntp,) ))
         self.TR = kwargs.get('TR', 2*ones( (self.ntp,) ))
         self.taxis = cumsum(self.TR) - self.TR[0]
         return
@@ -38,7 +37,7 @@ class pk_params:
         self.kve = kwargs.get('kve', .02)
         self.kecp = kwargs.get('kecp', .02)
         self.kecl = kwargs.get('kecl', self.kecp)
-        self.vb = kwargs.get('vb', .1)
+        self.vb = kwargs.get('vb', .09)
         self.vef = kwargs.get('vef', .5)
         self.T1pyr = kwargs.get('T1pyr', 43)
         self.T1lac = kwargs.get('T1lac', 33)

@@ -29,12 +29,10 @@ def outerErrorFunction(data, fitParmList, default_parms, acq, modelFunc):
         return resid
     return innerErrorFunction
         
-def fit(fit_parms_list):
+def fit(fit_parms_list_and_nthfit):
+    fit_parms_list, nthfit = fit_parms_list_and_nthfit
     verbose = fit_parms_list[1].verbose
     errorFunc = outerErrorFunction(*fit_parms_list)
-
-    if verbose:
-        print('New process allocated...')
 
     guess = []
     LB = []
@@ -83,7 +81,7 @@ def fit(fit_parms_list):
     score = np.linalg.norm(iter_fit['fun'])
 
     if verbose:
-        print('\tOne fit completed.')
+        print(f'\tFit number {nthfit + 1} complete.')
 
     return popt, score
 
@@ -97,7 +95,7 @@ class Fit:
         #  speed up calculation
         with Pool(fit_parms.n_proc) as p:
             fit_list = [data, fit_parms, default_parms, acq, model]
-            all_fits = p.map(fit, (fit_list for _ in range(0, fit_parms.n_fits)))
+            all_fits = p.map(fit, ((fit_list,n) for n in range(0, fit_parms.n_fits)))
 
         found_fit = False
         for i,a_fit in enumerate(all_fits):
@@ -107,6 +105,7 @@ class Fit:
                 found_fit = True
 
         if not found_fit:
+            # This condition should never realistically be run
             print('Did not find a fit that exceeded quality threshold.')
             return
         
@@ -148,7 +147,7 @@ class Sim_Data:
             self.pyrSig = sim.pyrSig
             self.lacSig = sim.lacSig
         except:
-            print('Must pass a valid model to create Sim_Data object.')
+            print('\nError: Signal curve could not be calculated. Model function may not be valid.\n')
 
         return
     def noisify(self, peakSnr):
