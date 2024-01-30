@@ -420,7 +420,6 @@ def simp_P2L3(parms, acq):
     kecpdve = parms.kecp / ve
     kecpdvc = parms.kecp / vc
     kecldve = parms.kecl / ve
-    kecldvc = parms.kecl / vc
 
 
     ff = np.array([ parms.VIFScale*parms.PIF,
@@ -443,26 +442,27 @@ def simp_P2L3(parms, acq):
     #  Diff Eq: y'(t) = A y(t) + ff(t)
     #  Soln: y(t) = exp(A*t) * integral(0,t: exp(-A*T)*ff(T) dT)
     #  A is 4x4 matrix
-    a11 = - (kvedve + kecpdve + R1Pyr + parms.extraPyrLoss)
-    a13 = kecpdve
-    a22 = - (kvedve + kecldve + R1Lac + parms.extraLacLoss)
-    a24 = kecldve
+    a11 = - (kecpdve + R1Pyr + parms.extraPyrLoss)
     a31 = kecpdvc
     a33 = - (kecpdvc + parms.kpl + R1Pyr + parms.intraPyrLoss)
-    a34 = parms.klp
-    a42 = kecldvc
     a43 = parms.kpl
-    a44 = - (kecldvc + parms.klp + R1Lac + parms.intraLacLoss)
+    a44 = - (R1Lac + parms.intraLacLoss)
 
-    A = [ [a11, 0, a13, 0],
-        [0, a22, 0, a24],
-        [a31, 0, a33, a34],
-        [0, a42, a43, a44] ]
+    A = [ [a11, 0, 0, 0],
+        [0, 0, 0, 0],
+        [a31, 0, a33, 0],
+        [0, 0, a43, a44] ]
 
     # Diagonalize to permit matrix integral
     dD, P = np.linalg.eig(A)
     # dD is (4,1) array containing eigenvalues
     # P is 2D array containing matrix of eigenvecters
+
+    # In the simplified model one of the eigenvalues will be zero, causing a divide by zero error. 
+    #  To suppress this, we replace it with an arbitrarily low value
+    for jj,eigen in enumerate(dD):
+        if eigen==0:
+            dD[jj] = 1e-20
 
     ### Calculate signal evolution in TR ###
     MzevSegIC = np.array(
@@ -541,8 +541,7 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
 
     from parameters import *
-    from simulators import *
-    from fitters import *
+
 
     print('\nRunning each simulation with a set of dummy parameters... ')
     acq = acq_params()
@@ -576,16 +575,33 @@ if __name__ == '__main__':
 
     plt.show()
 
-    figure = plt.figure(figsize=(12,6), num='Simp Test')
+    fig, ax = plt.subplots(1,2, figsize=(12,6), num='Simp Test')
 
     simp = simp_P2L3(parms, acq)
-    plt.plot(acq.taxis, simp.pyrSig, color='green', label='Pyr')
-    plt.plot(acq.taxis, simp.lacSig, color='blue', label='Lac')
-    plt.legend()
-    plt.grid()
-    plt.xlabel('Time (s)')
-    plt.title('Simplified 3 Compartment')
+    ax[0].plot(acq.taxis, comp_3.pyrSig, color='green', label='Pyr')
+    ax[0].plot(acq.taxis, comp_3.lacSig, color='blue', label='Lac')
+    ax[0].legend()
+    ax[0].grid()
+    ax[0].set_xlabel('Time (s)')
+    ax[0].set_title('Full 3 Compartment')
+
+    ax[1].plot(acq.taxis, simp.pyrSig, color='green', label='Pyr')
+    ax[1].plot(acq.taxis, simp.lacSig, color='blue', label='Lac')
+    ax[1].legend()
+    ax[1].grid()
+    ax[1].set_xlabel('Time (s)')
+    ax[1].set_title('Simplified 3 Compartment')
 
     plt.show()
 
     print('\tAll functions called successfully.\n')
+
+    is_diff = False
+    for i,val in enumerate(comp_3.lacSig):
+        if val != simp.lacSig[i]:
+            is_diff = True
+
+    if is_diff:
+        print('These should be different and they are. Yay.')
+    else:
+        print("Simplified P2L3 is just a copy of P2L3 right now. Not yay.")

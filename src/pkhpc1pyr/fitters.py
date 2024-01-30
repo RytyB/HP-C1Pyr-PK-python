@@ -68,7 +68,10 @@ def fit(fit_parms_list_and_nthfit):
         fun = errorFunc,
         x0 = guess,
         bounds = (LB, UB),
-        verbose = 0
+        verbose = 0,
+		ftol = 1e-6,  # Editted to match MATLAB defaults
+		xtol = 1e-6,
+		gtol = 1e-6
     )
 
     opt_x = iter_fit['x']
