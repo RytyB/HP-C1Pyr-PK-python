@@ -47,7 +47,7 @@ def mrdivide(B, A):
     x = np.linalg.lstsq(B, A, rcond = None)[0]
     return x
 
-def P2L1(parms, acq):
+def P2L1(parms:pk_params, acq:acq_params):
 
     '''
     input:
@@ -114,13 +114,13 @@ def P2L1(parms, acq):
         Mz[:,i] = [PzSeg[i], LzSeg]
     ### END OF CALCULATION LOOP ###
 
-    pyrSig = Mz[0,:]
-    lacSig = Mz[1,:]
+    pyrSig = Mxy[0,:]
+    lacSig = Mxy[1,:]
     result = sim_result(Mxy, Mz, pyrSig, lacSig)
 
     return result
 
-def P2L2(parms, acq):
+def P2L2(parms:pk_params, acq:acq_params):
     '''
     input:
         pk_params object
@@ -223,14 +223,14 @@ def P2L2(parms, acq):
     ### END OF CALCULATION LOOP ###
     Mxy = np.array([Mxyiv[0], Mxyiv[1], Mxyev[0], Mxyiv[1]])
     Mz = np.array([Mziv[0], Mziv[1], Mzev[0], Mzev[1]])
-    pyrSig = vb*Mz[0] + (1-vb)*Mz[2]
-    lacSig = vb*Mz[1] + (1-vb)*Mz[3]
+    pyrSig = vb*Mxy[0] + (1-vb)*Mxy[2]
+    lacSig = vb*Mxy[1] + (1-vb)*Mxy[3]
 
     result = sim_result(Mxy, Mz, pyrSig, lacSig)
 
     return result
 
-def P2L3(parms, acq):
+def P2L3(parms:pk_params, acq:acq_params):
     '''
     input:
         pk_params object
@@ -247,16 +247,17 @@ def P2L3(parms, acq):
                 Mxy[1,:] = intravascular lactate
                 Mxy[2.:] = extravascular pyruvate
                 Mxy[3,:] = extravascular lactate
+                Mxy[4,:] = intracellular pyruvate
+                Mxy[5,:] = intracellular lactate
             -> Mz: np.array containing longitudinal magnetization for each metabolite in each compartment
                 Mz[0.:] = intravascular pyruvate
                 Mz[1,:] = intravascular lactate
                 Mz[2.:] = extravascular pyruvate
                 Mz[3,:] = extravascular lactate
+                Mz[4,:] = extravascular pyruvate
+                Mz[5,:] = extravascular lactate
             -> pyrSig: np.array containing the total longitudinal magnetization for pyruvate as a function of time
             -> lacSig: np.array containing the total longitudinal magnetization for lactate as a function of time
-    
-    Note: The only initial conditions used here are pk_params.Le0 and pk_params.Pe0
-          The only volume fraction used is pk_params.vb
     '''
 
     vb = parms.vb
@@ -376,13 +377,13 @@ def P2L3(parms, acq):
         Mzev[2],  # Intracellular pyruvate
         Mzev[3]   # Intracellular lactate
     ])
-    pyrSig = vb*Mz[0] + ve*Mz[2] + vc*Mz[4]
-    lacSig = vb*Mz[1] + ve*Mz[3] + vc*Mz[5]
+    pyrSig = vb*Mxy[0] + ve*Mxy[2] + vc*Mxy[4]
+    lacSig = vb*Mxy[1] + ve*Mxy[3] + vc*Mxy[5]
     result = sim_result(Mxy, Mz, pyrSig, lacSig)
 
     return result
 
-def simp_P2L3(parms, acq):
+def simp_P2L3(parms:pk_params, acq:acq_params):
     '''
     input:
         pk_params object
@@ -399,16 +400,17 @@ def simp_P2L3(parms, acq):
                 Mxy[1,:] = intravascular lactate
                 Mxy[2.:] = extravascular pyruvate
                 Mxy[3,:] = extravascular lactate
+                Mxy[4,:] = intracellular pyruvate
+                Mxy[5,:] = intracellular lactate
             -> Mz: np.array containing longitudinal magnetization for each metabolite in each compartment
                 Mz[0.:] = intravascular pyruvate
                 Mz[1,:] = intravascular lactate
                 Mz[2.:] = extravascular pyruvate
                 Mz[3,:] = extravascular lactate
+                Mz[4,:] = extravascular pyruvate
+                Mz[5,:] = extravascular lactate
             -> pyrSig: np.array containing the total longitudinal magnetization for pyruvate as a function of time
             -> lacSig: np.array containing the total longitudinal magnetization for lactate as a function of time
-    
-    Note: The only initial conditions used here are pk_params.Le0 and pk_params.Pe0
-          The only volume fraction used is pk_params.vb
     '''
 
     vb = parms.vb
@@ -528,8 +530,8 @@ def simp_P2L3(parms, acq):
         Mzev[2],  # Intracellular pyruvate
         Mzev[3]   # Intracellular lactate
     ])
-    pyrSig = vb*Mz[0] + ve*Mz[2] + vc*Mz[4]
-    lacSig = vb*Mz[1] + ve*Mz[3] + vc*Mz[5]
+    pyrSig = vb*Mxy[0] + ve*Mxy[2] + vc*Mxy[4]
+    lacSig = vb*Mxy[1] + ve*Mxy[3] + vc*Mxy[5]
     result = sim_result(Mxy, Mz, pyrSig, lacSig)
 
     return result

@@ -3,6 +3,7 @@ from multiprocessing import Pool
 from scipy.optimize import least_squares
 
 from .parameters import *
+from .simulators import P2L1
 
 __all__ = ['Fit', 'Sim_Data']
 
@@ -90,14 +91,37 @@ def fit(fit_parms_list_and_nthfit):
 
 
 class Fit:
-    def __init__(self, fit_parms, default_parms, acq, data, model):
+    '''Fit
 
-        bestScore = 10000000  # Some arbitrarily high number
+    Attributes
+    ----------
+    popt: pk_params object that produces best fit
+    Mxy: numpy.ndarray in the format of the model function passed in the constructor. See docstring for particular model function
+    Mz: numpy.ndarray in the format of the model function passed in the constructor
+    pyrSig: numpy.ndarray whose length depends on acq. parameters passed in constructor
+    lacSig: numpy.ndarray whose length depends on acq. parameters passed in constructor
+    inp_data: The Sim_Data object containing the data to which time curves will be fit
+
+    Methods
+    -------
+    __init__(fit_parms, default_parms, acq, data, model):
+        inp_data is loaded into a Sim_Data like structure. Must have attributes pyrSig and lacSig
+
+    calculate_NMSE():
+
+    calculate_MSE():
+
+    calculate_RSS():
+
+    '''
+    def __init__(self, fit_parms:fit_params, default_parms:pk_params, acq:acq_params, inp_data, model):
+
+        bestScore = 1e7  # Some arbitrarily high number
 
         # Loop level parallelism calls each fit on a seperate process to
         #  speed up calculation
         with Pool(fit_parms.n_proc) as p:
-            fit_list = [data, fit_parms, default_parms, acq, model]
+            fit_list = [inp_data, fit_parms, default_parms, acq, model]
             all_fits = p.map(fit, ((fit_list,n) for n in range(0, fit_parms.n_fits)))
 
         found_fit = False
@@ -118,23 +142,33 @@ class Fit:
         self.Mz = opt_curves.Mz
         self.pyrSig = opt_curves.pyrSig
         self.lacSig = opt_curves.lacSig
+        self.inp_data = inp_data
 
         if fit_parms.verbose:
             self.popt.pretty_print('Fitted PK Parms')
 
         return
     def calculate_NMSE(self):
-        return
+        pyr_resid = self.pyrSig - self.inp_data.pyrSig
+        lac_resid = self.lacSig - self.inp_data.lacSig
+        tot_resid = np.array([pyr_resid, lac_resid])
+        tot_resid = tot_resid.flatten()
+        tot_signal = np.array([self.inp_data.pyrSig, self.inp_data.lacSig])
+
+        pyr_NMSE = (np.linalg.norm(pyr_resid)**2) / (np.linalg.norm(self.inp_data.pyrSig)**2)
+        lac_NMSE = (np.linalg.norm(lac_resid)**2) / (np.linalg.norm(self.inp_data.lacSig)**2)
+        tot_NMSE = (np.linalg.norm(tot_resid)**2) / (np.linalg.norm(tot_signal)**2)
+        return (pyr_NMSE, lac_NMSE, tot_NMSE)
     def calculate_MSE(self):
-        pyr_resid = self.pyrSig - self.data.pyrSig
-        lac_resid = self.lacSig - self.data.lacSig
+        pyr_resid = self.pyrSig - self.inp_data.pyrSig
+        lac_resid = self.lacSig - self.inp_data.lacSig
         pyr_MSE = (np.linalg.norm(pyr_resid)**2) / len(pyr_resid)
         lac_MSE = (np.linalg.norm(lac_resid)**2) / len(lac_resid)
         tot_MSE = (np.linalg.norm(pyr_resid)**2 + np.linalg.norm(lac_resid)**2) / (len(pyr_resid) + len(lac_resid))
         return (pyr_MSE, lac_MSE, tot_MSE)
     def calculate_RSS(self):
-        pyr_resid = self.pyrSig - self.data.pyrSig
-        lac_resid = self.lacSig - self.data.lacSig
+        pyr_resid = self.pyrSig - self.inp_data.pyrSig
+        lac_resid = self.lacSig - self.inp_data.lacSig
         pyr_RSS = np.linalg.norm(pyr_resid) ** 2
         lac_RSS = np.linalg.norm(lac_resid) ** 2
         tot_RSS = pyr_RSS + lac_RSS
@@ -142,7 +176,25 @@ class Fit:
     
 
 class Sim_Data:
-    def __init__(self, parms, acq, model):
+    '''Sim_Data
+
+    Attributes
+    ----------
+    pyrSig: numpy.ndarray containing a simulated pyruvate time curve with size depending on instantiation
+    lacSig: numpy.ndarray containing a simulated lactate time curve
+
+    Methods
+    -------
+    __init__(parms, acq, model):
+        Constructor -- parms and acq will be passed to a simulator function to create a new time curves, 
+        model is a function handle (such as a P2L3 or similar) that takes parms and acq and returns a 
+        sim_result object
+    noisify(peakSnr):
+        Returns a new Sim_Data object where the signal curves are the same as the old object with added 
+        zero-mean Gaussian noise
+    
+    '''
+    def __init__(self, parms:pk_params, acq:acq_params, model):
 
         self.taxis = np.cumsum( acq.TR ) - acq.TR[0]
         try:
@@ -150,7 +202,7 @@ class Sim_Data:
             self.pyrSig = sim.pyrSig
             self.lacSig = sim.lacSig
         except:
-            print('\nError: Signal curve could not be calculated. Model function may not be valid.\n')
+            print('\nERROR: Could not initialize Sim_Data object. Model function may not be valid.\n')
 
         return
     def noisify(self, peakSnr):
@@ -161,12 +213,25 @@ class Sim_Data:
         else:
             sigma = np.max(self.lacSig) / peakSnr
 
-        # Sample Gaussian and add to curve at every time point
-        for i,_ in enumerate(self.pyrSig):
-            self.pyrSig[i] += np.random.normal(loc=0, scale=sigma)
-            self.lacSig[i] += np.random.normal(loc=0, scale=sigma) 
+        noisy_pyrSig = self.pyrSig.copy()
+        noisy_lacSig = self.lacSig.copy()
 
-        return
+        # Sample Gaussian and add to curve at every time point
+        for i,_ in enumerate(noisy_pyrSig):
+            noisy_pyrSig[i] += np.random.normal(loc=0, scale=sigma)
+            noisy_lacSig[i] += np.random.normal(loc=0, scale=sigma) 
+
+        # Setting temporary parameters for new class constructor. These will be 
+        # immediately forgotten
+        acq = acq_params()
+        parms = pk_params(acq)
+        model = P2L1
+
+        new_Sim_Data = Sim_Data(parms, acq, model)
+        new_Sim_Data.pyrSig = noisy_pyrSig
+        new_Sim_Data.lacSig = noisy_lacSig
+
+        return new_Sim_Data
 
 
 if __name__ == '__main__':

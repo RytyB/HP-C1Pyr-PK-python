@@ -37,7 +37,7 @@ class pk_params:
         self.kve = kwargs.get('kve', .02)
         self.kecp = kwargs.get('kecp', .02)
         self.kecl = kwargs.get('kecl', self.kecp)
-        self.vb = kwargs.get('vb', .09)
+        self.vb = kwargs.get('vb', .1)
         self.vef = kwargs.get('vef', .5)
         self.T1pyr = kwargs.get('T1pyr', 43)
         self.T1lac = kwargs.get('T1lac', 33)
@@ -46,10 +46,10 @@ class pk_params:
         self.Li0 = kwargs.get('Li0', 0)
         self.Le0 = kwargs.get('Le0', 0)
         self.PIF = kwargs.get('PIF', def_pif)
-        self.intraPyrLoss = kwargs.get('intraPyrLoss', 0)
-        self.intraLacLoss = kwargs.get('intraLacLoss', 0)
-        self.extraPyrLoss = kwargs.get('extraPyrLoss', 0)
-        self.extraLacLoss = kwargs.get('extraLacLoss', 0)
+        self.intraPyrLoss = kwargs.get('intraPyrLoss', 0)  # Gamma 1
+        self.intraLacLoss = kwargs.get('intraLacLoss', 0)  # Gamma 2
+        self.extraPyrLoss = kwargs.get('extraPyrLoss', 0)  # Gamma 3
+        self.extraLacLoss = kwargs.get('extraLacLoss', 0)  # Gamma 4
         return
     def write_dictionary(self):
         my_dict = {
