@@ -87,53 +87,79 @@ if __name__ == "__main__":
 
     import matplotlib.pyplot as plt
     import P2L1 as pyt_P2L1
+    import time
 
     ntp = 100
     Tr = 2
     taxis = np.arange(0, Tr*ntp, Tr)
 
-    # Initialize pk parameters object
-    test_parms = pk_params()
-    test_parms.kpl = 0.7
-    test_parms.klp = 0.02
-    test_parms.R1pyr = 1/44
-    test_parms.R1lac = 1/34
-    test_parms.Li0 = 0
-    test_parms.PIF = (ct.c_double * ntp)(*(1000 * np.exp(-.115 * taxis))) # Arbitrary VIF here
+    c_begin = time.time()
+    for i in range(0,100):
+        # Initialize pk parameters object
+        test_parms = pk_params()
+        test_parms.kpl = 0.7
+        test_parms.klp = 0.02
+        test_parms.R1pyr = 1/44
+        test_parms.R1lac = 1/34
+        test_parms.Li0 = 0
+        test_parms.PIF = (ct.c_double * ntp)(*(1000 * np.exp(-.115 * taxis))) # Arbitrary VIF here
 
-    # Initialize acquisition parameters object
-    test_acq = acq_params()
-    test_acq.ntp = ntp
-    test_acq.FA = (ct.c_double*ntp)(*(np.ones( (ntp,) ) * 30))  # deg
-    test_acq.TR = (ct.c_double*ntp)(*(np.ones( (ntp,) ) * Tr))  # sec
+        # Initialize acquisition parameters object
+        test_acq = acq_params()
+        test_acq.ntp = ntp
+        test_acq.FA = (ct.c_double*ntp)(*(np.ones( (ntp,) ) * 30))  # deg
+        test_acq.TR = (ct.c_double*ntp)(*(np.ones( (ntp,) ) * Tr))  # sec
 
-    print("This is python: Everything got set up, calling C code ...\n")
-    sim_res = P2L1(test_parms, test_acq)
+        print("This is python: Everything got set up, calling C code ...\n")
 
-    fdv = {}
-    fdv['kpl'] = .7
-    fdv['fitvarNames'] = ['kpl']
-    fdv['knowns'] = {
-        'T1Lac': 33, 
-        'klp': .02, 
-        'L0': 0
-        }
-    # Independent parameters
-    fdv['ntp'] = ntp
-    fdv['NSeg'] = 1
-    fdv['TR'] = Tr
-    fdv['FA'] = 30
-    fdv['verbose'] = False
-    # Describe acquisition scheme
-    fdv['NFlips'] = (fdv['ntp']*fdv['NSeg'])
-    #Describe temporal sampling scheme
-    fdv['TR'] = fdv['TR'] * np.ones( (1, fdv['NFlips']) )
-    fdv['taxis'] = np.cumsum(fdv['TR']) - fdv['TR'][0]
-    #Describe excitation scheme
-    fdv['FlipAngle'] = fdv['FA']*np.ones( (2,fdv['NFlips']) )
-    fdv['data'] = [1000*np.exp(-.115*taxis)]
+    
+    
+        sim_res = P2L1(test_parms, test_acq)
+    c_end = time.time()
 
-    pyt_Mxy, pyt_Mz = pyt_P2L1.P2L1([fdv['kpl']], fdv)
+    pyt_begin = time.time()
+    for i in range(0,100):
+        fdv = {}
+        fdv['kpl'] = .7
+        fdv['fitvarNames'] = ['kpl']
+        fdv['knowns'] = {
+            'T1Lac': 33, 
+            'klp': .02, 
+            'L0': 0
+            }
+        # Independent parameters
+        fdv['ntp'] = ntp
+        fdv['NSeg'] = 1
+        fdv['TR'] = Tr
+        fdv['FA'] = 30
+        fdv['verbose'] = False
+        # Describe acquisition scheme
+        fdv['NFlips'] = (fdv['ntp']*fdv['NSeg'])
+        #Describe temporal sampling scheme
+        fdv['TR'] = fdv['TR'] * np.ones( (1, fdv['NFlips']) )
+        fdv['taxis'] = np.cumsum(fdv['TR']) - fdv['TR'][0]
+        #Describe excitation scheme
+        fdv['FlipAngle'] = fdv['FA']*np.ones( (2,fdv['NFlips']) )
+        fdv['data'] = [1000*np.exp(-.115*taxis)]
+
+    
+    
+        pyt_Mxy, pyt_Mz = pyt_P2L1.P2L1([fdv['kpl']], fdv)
+    pyt_end = time.time()
+
+    c_duration = c_end-c_begin
+    pyt_duration = pyt_end-pyt_begin
+
+    print()
+    print('Elapsed time for 100 calls of C function:', c_duration)
+    print('Elapsed time for 100 calls of Python function:', pyt_duration)
+    print()
+    if c_duration > pyt_duration:
+        print('Sorry boss, python is still faster.')
+    else:
+        print('C was a speedup factor of ' + str(pyt_duration/c_duration)[0:5] + 'x')
+    print()
+
 
     fig, ax = plt.subplots( 1,2, figsize=(18,6), num="C Curve Test" )
 
