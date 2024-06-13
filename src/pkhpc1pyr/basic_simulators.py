@@ -133,14 +133,14 @@ def P2L2(parms:pk_params, acq:acq_params):
     output:
         sim_result object with following fields
             -> Mxy: np.array containing transverse magnetization for each metabolite in each compartment
-                Mxy[0.:] = intravascular pyruvate
+                Mxy[0,:] = intravascular pyruvate
                 Mxy[1,:] = intravascular lactate
-                Mxy[2.:] = extravascular pyruvate
+                Mxy[2,:] = extravascular pyruvate
                 Mxy[3,:] = extravascular lactate
             -> Mz: np.array containing longitudinal magnetization for each metabolite in each compartment
-                Mz[0.:] = intravascular pyruvate
+                Mz[0,:] = intravascular pyruvate
                 Mz[1,:] = intravascular lactate
-                Mz[2.:] = extravascular pyruvate
+                Mz[2,:] = extravascular pyruvate
                 Mz[3,:] = extravascular lactate
             -> pyrSig: np.array containing the total longitudinal magnetization for pyruvate as a function of time
             -> lacSig: np.array containing the total longitudinal magnetization for lactate as a function of time
@@ -221,7 +221,7 @@ def P2L2(parms:pk_params, acq:acq_params):
         Mxyiv[:,i-1] = MxyivSeg[:,i-1]
         Mziv[:,i-1] = MivSeg[:,i-1]
     ### END OF CALCULATION LOOP ###
-    Mxy = np.array([Mxyiv[0], Mxyiv[1], Mxyev[0], Mxyiv[1]])
+    Mxy = np.array([Mxyiv[0], Mxyiv[1], Mxyev[0], Mxyev[1]])
     Mz = np.array([Mziv[0], Mziv[1], Mzev[0], Mzev[1]])
     pyrSig = vb*Mxy[0] + (1-vb)*Mxy[2]
     lacSig = vb*Mxy[1] + (1-vb)*Mxy[3]
@@ -421,8 +421,6 @@ def simp_P2L3(parms:pk_params, acq:acq_params):
     kvedve = parms.kve / ve
     kecpdve = parms.kecp / ve
     kecpdvc = parms.kecp / vc
-    kecldve = parms.kecl / ve
-
 
     ff = np.array([ parms.VIFScale*parms.PIF,
                     np.zeros( acq.ntp ),

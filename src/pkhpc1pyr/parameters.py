@@ -15,6 +15,13 @@ __all__ = [
 
 class fit_params:
     def __init__(self, **kwargs):
+        '''
+        Keyword inputs:
+            - n_proc -- number of threads to use
+            - n_fits -- number of times to repeat stochastic init conditions for fitting
+            - fit_vars -- list of PK parameters to be fit as list of strings
+            - verbose -- bool of whether or not you want updates printed to console
+        '''
         self.n_proc = kwargs.get('n_proc', 1)
         self.n_fits = kwargs.get('n_fits', 1)
         self.fit_vars = kwargs.get('fit_vars', ['kpl'])

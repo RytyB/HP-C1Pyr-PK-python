@@ -3,7 +3,7 @@ from multiprocessing import Pool
 from scipy.optimize import least_squares
 
 from .parameters import *
-from .simulators import P2L1
+from .basic_simulators import *
 
 __all__ = ['Fit', 'Sim_Data']
 
