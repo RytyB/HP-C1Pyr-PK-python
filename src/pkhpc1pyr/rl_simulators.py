@@ -94,8 +94,8 @@ def rl_kecp(parms:pk_params, acq:acq_params):
     # a12 = parms.klp  ## <-- need to test if this helps or hurts, where klp is pyruvate efflux from cell
     a12 = 0
     # a22 = - ( 1/parms.T1lac + parms.klp + kvedve)
-    # a22 = -(1/parms.T1lac + kvedve * 0.5) # <-- 1/2 used to be kvedve
-    a22 = -( 1/parms.T1lac )  # <-- fit this. What if kvedve is different for the extravasation of pyruvate and revabsorbtion of lactate?
+    a22 = -(1/parms.T1lac + kvedve * parms.vef) # <-- 1/2 used to be kvedve
+    # a22 = -( 1/parms.T1lac )  # <-- fit this. What if kvedve is different for the extravasation of pyruvate and revabsorbtion of lactate?
     A = [ [a11, a12], [a21, a22] ]
 
 
@@ -143,11 +143,11 @@ def rl_kecp(parms:pk_params, acq:acq_params):
             # Total signal at end of TR is combination of inflowing and already present signals
             MzevSegIC = np.matmul(P, (MzevSeg1 + kvedve*(MevSeg2a+MevSeg2b)))
 
-        Mxyev[:,i-1] = np.reshape(MxyevSeg, (2,) )
-        Mzev[:,i-1] = np.reshape(MzevSeg, (2,) )
+        Mxyev[:,i] = np.reshape(MxyevSeg, (2,) )
+        Mzev[:,i] = np.reshape(MzevSeg, (2,) )
 
-        Mxyiv[:,i-1] = MxyivSeg[:,i-1]
-        Mziv[:,i-1] = MivSeg[:,i-1]
+        Mxyiv[:,i] = MxyivSeg[:,i-1]
+        Mziv[:,i] = MivSeg[:,i-1]
     ### END OF CALCULATION LOOP ###
     Mxy = np.array([Mxyiv[0], Mxyiv[1], Mxyev[0], Mxyev[1]])
     Mz = np.array([Mziv[0], Mziv[1], Mzev[0], Mzev[1]])
