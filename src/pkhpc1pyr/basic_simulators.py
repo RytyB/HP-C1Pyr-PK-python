@@ -215,11 +215,11 @@ def P2L2(parms:pk_params, acq:acq_params):
             # Total signal at end of TR is combination of inflowing and already present signals
             MzevSegIC = np.matmul(P, (MzevSeg1 + kvedve*(MevSeg2a+MevSeg2b)))
 
-        Mxyev[:,i-1] = np.reshape(MxyevSeg, (2,) )
+        Mxyev[:,i] = np.reshape(MxyevSeg, (2,) )
         Mzev[:,i-1] = np.reshape(MzevSeg, (2,) )
 
-        Mxyiv[:,i-1] = MxyivSeg[:,i-1]
-        Mziv[:,i-1] = MivSeg[:,i-1]
+        Mxyiv[:,i] = MxyivSeg[:,i]
+        Mziv[:,i] = MivSeg[:,i]
     ### END OF CALCULATION LOOP ###
     Mxy = np.array([Mxyiv[0], Mxyiv[1], Mxyev[0], Mxyev[1]])
     Mz = np.array([Mziv[0], Mziv[1], Mzev[0], Mzev[1]])
