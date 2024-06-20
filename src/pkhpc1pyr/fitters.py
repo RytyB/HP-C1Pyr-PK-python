@@ -35,17 +35,19 @@ def fit(fit_parms_list_and_nthfit):
     verbose = fit_parms_list[1].verbose
     errorFunc = outerErrorFunction(*fit_parms_list)
 
+    rng = np.random.default_rng()
+
     guess = []
     LB = []
     UB = []
     # Hard-code in initial guesses for variables
     for i,var in enumerate(fit_parms_list[1].fit_vars):
         if var == 'kpl':
-            guess.append( np.random.rand()*1.5 )
+            guess.append( rng.random()*1.5 )
             UB.append(20)
             LB.append(0)
         elif var == 'VIFScale':
-            guess.append( np.random.rand()*10000 )
+            guess.append( rng.random()*10000 )
             UB.append(1000000)
             LB.append(0)
         elif var == 'T1pyr':
@@ -61,7 +63,7 @@ def fit(fit_parms_list_and_nthfit):
             UB.append(100)
             LB.append(0)
         else:  # This case will mostly be rate constants
-            guess.append( np.random.rand() / 10 )
+            guess.append( rng.random() / 10 )
             UB.append(1)
             LB.append(0)
 
