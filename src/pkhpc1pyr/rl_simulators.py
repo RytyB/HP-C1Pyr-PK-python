@@ -5,7 +5,8 @@ from .parameters import *
 __all__ = [
     'rl_kecp',
     'rl_kpl',
-    'rl_kecl'
+    'rl_kecl',
+    'rl_kve'
 ]
 
 
@@ -420,3 +421,84 @@ def rl_kecl(parms:pk_params, acq:acq_params):
 
     result = sim_result(Mxy, Mz, pyrSig, lacSig)
     return result
+
+
+def rl_kve(parms:pk_params, acq:acq_params):
+
+    '''
+    input:
+        pk_params object
+            -> Can be created by writing parms=pk_params()
+            -> Pass non-default parameters as keyword arguments
+        acq_params object
+            -> Can be created by writing acq=acq_params()
+            -> Pass non-default parameters as keyword arguments
+
+    output:
+        sim_result object with following fields
+            -> Mxy: np array containing transverse magnetization for each metabolite in each compartment
+                Mxy[0,:] = pyruvate
+                Mxy[1.:] = lactate
+            -> Mz: np array containing longitudinal magnetization for each metabolite in each compartment
+                Mz[0.:] = pyruvate
+                Mz[1,:] = lactate
+            -> pyrSig: np array containing the total longitudinal magnetization for pyruvate as a function of time
+            -> lacSig: np array containing the total longitudinal magnetization for lactate as a function of time
+    
+    Note: The only initial condition used here is pk_params.Le0
+    '''
+        
+    # Data from each excitation
+    PzSeg = parms.VIFScale*parms.PIF
+    PxySeg = PzSeg*np.sin( np.radians(acq.FA) )
+    
+    # Initialize return variables 
+    Mxy = np.zeros( (2, acq.ntp) )
+    Mz = np.zeros( (2, acq.ntp) )
+
+    vb = parms.vb
+    vef = parms.vef
+    ve  = (1-vb)*vef
+    kvedve = parms.kve / ve
+
+    # Set up for the following equation
+    #  Lac = Lac0 * exp(At) + kpl * inte(0,t: exp(A*(t-T)) *[Pyr(T)] *dT)
+    A = -(kvedve*vef + 1/parms.T1lac)
+
+    #### Caluclate signal evolution in each TR ###
+    LzSegIC = parms.Le0  # Initial condition before acquisition starts
+    for i in range(0, acq.ntp):
+        TR = acq.TR[i]
+    
+        # First account for signal already in the slice and its evolution
+        # Longitudinal M available at start of each cycle
+        LzSeg = LzSegIC
+        # Signal observed at start of each cycle
+        LxySeg = LzSegIC * np.sin( np.radians(acq.FA[i]) )
+        # LxySeg = np.multiply(LzSegIC, np.sin( np.radians(acq.FA[i]) ))
+
+        # Evolution of this cycle becomes the IC of the next
+        if i < acq.ntp-1: # No evolution after last datapoint
+            LzSeg1 = np.exp(A*TR)*LzSegIC*np.cos(
+                np.radians(acq.FA[i] ))
+            # Now account for new spins flowing nto the system during TR
+            # Obtain parameters for linear pyruvate forcing function
+            b = PzSeg[i]
+            m = (PzSeg[i+1]-PzSeg[i]) / TR 
+
+            # Contribution from inflowing spins during this TR
+            LzSeg2 = (((m/A + b)* np.exp(A*TR)) - (m*(TR+1/A)) - b)/A
+            #Total signal at the end of TR is sum of inflowing and already present
+            LzSegIC = LzSeg1 + kvedve*LzSeg2
+                
+        
+            Mxy[:,i] = [PxySeg[i], LxySeg]
+            Mz[:,i] = [PzSeg[i], LzSeg]
+    ### END OF CALCULATION LOOP ###
+
+    pyrSig = vb*Mxy[0,:]
+    lacSig = ve*Mxy[1,:]
+    result = sim_result(Mxy, Mz, pyrSig, lacSig)
+
+    return result
+
