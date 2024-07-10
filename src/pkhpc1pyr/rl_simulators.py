@@ -359,7 +359,7 @@ def rl_kecl(parms:pk_params, acq:acq_params):
     # a12 = parms.klp  ## <-- need to test if this helps or hurts, where klp is backwards rate of reaction
     a12 = 0
     # a22 = - ( 1/parms.T1lac + parms.klp + kvedve)
-    a22 = -(1/parms.T1lac + kvedve) # <-- 1/2 used to be kvedve
+    a22 = -(1/parms.T1lac + parms.vef*kvedve) # <-- 1/2 used to be kvedve
     # a22 = -( 1/parms.T1lac )  # <-- fit this. What if kvedve is different for the extravasation of pyruvate and revabsorbtion of lactate?
     A = [ [a11, a12], [a21, a22] ]
 
